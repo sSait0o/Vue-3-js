@@ -17,7 +17,7 @@
           <input
             v-model="data.password"
             type="password"
-            id="paswword"
+            id="passwword"
             placeholder="votre mot de passe"
           />
         </article>
@@ -46,11 +46,23 @@ const isUserInputValid = (input: string): boolean => {
   const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return pattern.test(input);
 };
+
+const isPasswordValid = (password: string): boolean => {
+  const pattern =
+    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  return pattern.test(password);
+};
+
 const submitHandler = () => {
   if (!isUserInputValid(data.email)) {
     console.log("Email invalide");
   } else {
     console.log("Email valide");
+  }
+  if (!isPasswordValid(data.password)) {
+    console.log("Mot de passe invalide");
+  } else {
+    console.log(" mot de passe valides");
   }
 };
 
