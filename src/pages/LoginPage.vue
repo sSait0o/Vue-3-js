@@ -6,7 +6,7 @@
         <article>
           <label for="email"></label>
           <input
-            v-model="data.email"
+            v-model="email"
             id="email"
             placeholder="Enter your email"
             type="email"
@@ -16,7 +16,7 @@
         <article>
           <label for="password"></label>
           <input
-            v-model="data.password"
+            v-model="password"
             id="password"
             placeholder="Entrez votre mot de passe"
             type="password"
@@ -26,28 +26,22 @@
       </section>
       <section>
         <button type="submit" class="button is-primary">Se connecter</button>
-        <button type="reset" class="button is-danger" @click="resetForm">
-          Réinitialiser
-        </button>
+        <button type="reset" class="button is-danger">Réinitialiser</button>
       </section>
     </form>
   </main>
 </template>
 
 <script setup lang="ts">
-import { reactive, watch } from "vue";
+import { reactive, ref, watch } from "vue";
 import inputValidator from "../utils/input-validator";
+import { useRouter } from "vue-router";
 
-const data = reactive({
-  email: "",
-  password: "",
-});
+const router = useRouter();
+const email = ref("");
+const password = ref("");
 
-watch(data, (val) => {
-  console.log(val.email, inputValidator(val.email, "email"));
-  console.log(val.password, inputValidator(val.password, "password"));
-});
-
+/*
 const isUserInputValid = (input: string): boolean => {
   const pattern = new RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$");
   return pattern.test(input);
@@ -59,23 +53,33 @@ const isPasswordInputValid = (input: string): boolean => {
   );
   return pattern.test(input);
 };
+*/
 
-const submitHandler = () => {
-  if (!isUserInputValid(data.email)) {
-    alert("Email invalide");
+watch(email, (val) => {
+  console.log(val, inputValidator(val, "email"));
+});
+
+watch(password, (val) => {
+  console.log(val, inputValidator(val, "password"));
+});
+
+const submitHandler = async () => {
+  const result = await fetch("users.json");
+  const users = await result.json();
+  console.log(users);
+  const user = users.find(
+    (user: { email: string; password: string }) => user.email === email.value
+  );
+  if (!user) {
+    alert("User not found");
     return;
   }
-  if (!isPasswordInputValid(data.password)) {
-    alert(
-      "Le MDP doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial"
-    );
+  if (!(user.password === password.value)) {
+    alert("Invalid password");
     return;
   }
-  console.log("Email valide et mot de passe valide");
-};
 
-const resetForm = () => {
-  data.email = "";
-  data.password = "";
+  console.log("tout se passe bien", user);
+  router.push("/session/" + user.id);
 };
 </script>
