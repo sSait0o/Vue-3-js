@@ -1,37 +1,42 @@
 <template>
-  <main class="login__main">
-    <h1>LoginPage</h1>
-    <form @submit.prevent.stop.once="submitHandler">
+  <main class="login_main">
+    <h1>Login Page</h1>
+    <form v-on:submit.prevent.stop.once="submitHandler">
       <section>
         <article>
-          <label for="email">Email</label>
+          <label for="email"></label>
           <input
             v-model="data.email"
-            type="email"
             id="email"
-            placeholder="votre email"
+            placeholder="Enter your email"
+            type="email"
+            class="input"
           />
         </article>
         <article>
-          <label for="password">Mot de passe</label>
+          <label for="password"></label>
           <input
             v-model="data.password"
+            id="password"
+            placeholder="Entrez votre mot de passe"
             type="password"
-            id="passwword"
-            placeholder="votre mot de passe"
+            class="input"
           />
         </article>
       </section>
       <section>
-        <button type="submit">Se connecter</button>
-        <button type="reset">Réintialiser</button>
+        <button type="submit" class="button is-primary">Se connecter</button>
+        <button type="reset" class="button is-danger" @click="resetForm">
+          Réinitialiser
+        </button>
       </section>
     </form>
   </main>
 </template>
 
 <script setup lang="ts">
-import { watch, reactive } from "vue";
+import { reactive, watch } from "vue";
+import inputValidator from "../utils/input-validator";
 
 const data = reactive({
   email: "",
@@ -39,37 +44,38 @@ const data = reactive({
 });
 
 watch(data, (val) => {
-  console.log(val);
+  console.log(val.email, inputValidator(val.email, "email"));
+  console.log(val.password, inputValidator(val.password, "password"));
 });
 
 const isUserInputValid = (input: string): boolean => {
-  const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const pattern = new RegExp("^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$");
   return pattern.test(input);
 };
 
-const isPasswordValid = (password: string): boolean => {
-  const pattern =
-    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-  return pattern.test(password);
+const isPasswordInputValid = (input: string): boolean => {
+  const pattern = new RegExp(
+    "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})"
+  );
+  return pattern.test(input);
 };
 
 const submitHandler = () => {
   if (!isUserInputValid(data.email)) {
-    console.log("Email invalide");
-  } else {
-    console.log("Email valide");
+    alert("Email invalide");
+    return;
   }
-  if (!isPasswordValid(data.password)) {
-    console.log("Mot de passe invalide");
-  } else {
-    console.log(" mot de passe valides");
+  if (!isPasswordInputValid(data.password)) {
+    alert(
+      "Le MDP doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial"
+    );
+    return;
   }
+  console.log("Email valide et mot de passe valide");
 };
 
-const inputHandler = () => {};
+const resetForm = () => {
+  data.email = "";
+  data.password = "";
+};
 </script>
-
-<style lang="scss">
-.login__main {
-}
-</style>
